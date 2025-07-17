@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">CodeFácil</string>
+    <string name="title_activity_settings">Configurações</string>
+    <string name="title_activity_statistics">Estatísticas</string>
+    <string name="title_activity_result">Resultado</string>
+    <string name="title_activity_challenge">Desafio</string>
+
+    <!-- Filtros -->
+    <string name="filter_all">Todos</string>
+    <string name="level_basic">Básico</string>
+    <string name="level_intermediate">Intermediário</string>
+    <string name="level_advanced">Avançado</string>
+
+    <!-- Níveis -->
+    <string name="level_prefix">Nível: %s</string>
+
+    <!-- Menu de Contexto (NOVA VERSÃO) -->
+    <string name="reset_challenge_progress">Resetar Progresso</string>
+    <string name="progress_reset">Progresso do desafio resetado!</string>
+
+    <!-- Tela de Resultado -->
+    <string name="correct_answer">Resposta Correta!</string>
+    <string name="wrong_answer">Resposta Errada!</string>
+    <string name="explanation">Explicação:</string>
+    <string name="next_challenge">Próximo Desafio</string>
+    <string name="back_to_dashboard">Voltar à Lista</string>
+    <string name="share_conquest">Compartilhar</string>
+    <string name="all_challenges_completed">Parabéns! Você completou todos os desafios.</string>
+
+    <!-- Compartilhamento -->
+    <string name="share_subject">Meu Progresso no CodeFácil!</string>
+    <string name="share_message_correct">Acertei o desafio "%s" no CodeFácil! Venha aprender lógica de programação também!</string>
+    <string name="share_message_wrong">Aprendi muito com o desafio "%s" no CodeFácil. Que tal tentar?</string>
+    <string name="share_via">Compartilhar via</string>
+
+    <!-- Estatísticas -->
+    <string name="statistics">Estatísticas</string>
+    <string name="stats_solved">Resolvidos</string>
+    <string name="stats_correct">Acertos</string>
+    <string name="stats_wrong">Erros</string>
+    <string name="stats_progress_by_level">Progresso por Nível</string>
+    <string name="stats_no_challenges">Nenhum desafio neste nível.</string>
+</resources>

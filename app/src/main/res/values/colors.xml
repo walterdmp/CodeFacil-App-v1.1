@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- COR PRIMÁRIA UNIFICADA PARA A MARCA -->
+    <color name="primary_brand">#3F51B5</color> <!-- Indigo -->
+    <color name="primary_brand_dark">#303F9F</color>
+
+    <!-- PALETA MODO CLARO -->
+    <color name="light_primary">@color/primary_brand</color>
+    <color name="light_primary_dark">@color/primary_brand_dark</color>
+    <color name="light_secondary">#448AFF</color> <!-- Blue A200 -->
+    <color name="light_background">#F5F5F5</color> <!-- Grey 100 -->
+    <color name="light_surface">#FFFFFF</color>
+    <color name="light_text_primary">#212121</color>
+    <color name="light_text_on_primary">#FFFFFF</color>
+
+    <!-- PALETA MODO ESCURO -->
+    <color name="dark_primary">@color/primary_brand</color>
+    <color name="dark_primary_dark">@color/primary_brand_dark</color>
+    <color name="dark_secondary">#536DFE</color> <!-- Indigo A200 -->
+    <color name="dark_background">#121212</color>
+    <color name="dark_surface">#1E1E1E</color>
+    <color name="dark_text_primary">#FFFFFF</color>
+    <color name="dark_text_on_primary">#FFFFFF</color>
+
+    <!-- Cores de Status -->
+    <color name="status_correct">#4CAF50</color> <!-- Verde -->
+    <color name="status_wrong">#F44336</color>   <!-- Vermelho -->
+    <color name="status_pending">#9E9E9E</color>  <!-- Cinza -->
+
+    <!-- Cores dos Níveis -->
+    <color name="level_basic_color">#4CAF50</color>
+    <color name="level_intermediate_color">#FFC107</color>
+    <color name="level_advanced_color">#F44336</color>
+
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+</resources>
