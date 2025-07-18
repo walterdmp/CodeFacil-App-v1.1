@@ -17,7 +17,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#2196F3"
+            android:background="?attr/colorPrimary"
             app:navigationIcon="?attr/homeAsUpIndicator"
             app:title="Configurações"
             app:titleTextColor="?attr/colorOnPrimary" />
@@ -62,11 +62,10 @@
                     android:textSize="18sp"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
-                <Switch
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switchDarkMode"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:ignore="UseSwitchCompatOrMaterialXml" />
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
             <LinearLayout
@@ -83,11 +82,10 @@
                     android:textSize="18sp"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
-                <Switch
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switchNotifications"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:ignore="UseSwitchCompatOrMaterialXml" />
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
         </LinearLayout>

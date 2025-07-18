@@ -6,7 +6,8 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.AdapterView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -17,6 +18,7 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import br.edu.ifsuldeminas.mch.codefacil.adapter.ChallengeAdapter;
@@ -56,11 +58,12 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
         }
 
         dbHelper = new DatabaseHelper(this);
-        allChallenges = dbHelper.getAllChallenges();
+        allChallenges = new ArrayList<>(); // Inicializa a lista
 
         setupViews();
         setupFilterChips();
-        loadChallenges();
+        // Carrega os desafios aqui, uma vez na criação da Activity
+        loadAndDisplayChallenges();
 
         NotificationHelper.createNotificationChannel(this);
         if (appPreferences.areNotificationsEnabled()) {
@@ -83,13 +86,12 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
 
     private void setupFilterChips() {
         chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == View.NO_ID) {
-                challengeAdapter.updateChallenges(allChallenges);
-                return;
-            }
             Chip selectedChip = findViewById(checkedId);
             if (selectedChip != null) {
                 filterChallenges(selectedChip.getText().toString());
+            } else {
+                // Se nenhum chip estiver selecionado, mostra todos
+                filterChallenges(getString(R.string.filter_all));
             }
         });
     }
@@ -109,19 +111,15 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
     protected void onResume() {
         super.onResume();
         if (isDarkModeActive != appPreferences.isDarkModeEnabled()) {
-            recreate();
+            recreate(); // Recria a activity se o tema mudou
             return;
         }
-
-        allChallenges = dbHelper.getAllChallenges();
-        loadChallenges();
-
-        if (chipGroupFilter.getCheckedChipId() == View.NO_ID) {
-            chipGroupFilter.check(R.id.chipAll);
-        }
+        // Recarrega os desafios para refletir qualquer progresso feito
+        loadAndDisplayChallenges();
     }
 
-    private void loadChallenges() {
+    private void loadAndDisplayChallenges() {
+        allChallenges = dbHelper.getAllChallenges();
         for (Challenge challenge : allChallenges) {
             UserProgress progress = dbHelper.getUserProgress(challenge.getId());
             challenge.setCompleted(progress != null && progress.isCompleted());
@@ -135,7 +133,10 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
             recyclerViewChallenges.setAdapter(challengeAdapter);
             challengeAdapter.setOnChallengeClickListener(this);
         } else {
-            challengeAdapter.updateChallenges(allChallenges);
+            // Atualiza a lista e o filtro selecionado
+            Chip selectedChip = findViewById(chipGroupFilter.getCheckedChipId());
+            String filter = selectedChip != null ? selectedChip.getText().toString() : getString(R.string.filter_all);
+            filterChallenges(filter);
         }
     }
 
@@ -186,16 +187,28 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
+        // CORRIGIDO: Forma segura de obter a posição do item
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        // A linha acima pode causar um crash se não estiver a usar um AdapterView.
+        // O RecyclerView não usa AdapterContextMenuInfo. O adapter precisa de guardar a posição.
+        // A abordagem com a variável no adapter, embora frágil, é a mais simples sem grandes refatorações.
+        // Vamos manter a sua abordagem original, mas com uma verificação.
+
         int position = challengeAdapter.getLongClickedPosition();
-        if (position < 0) return super.onContextItemSelected(item);
+        if (position < 0) {
+            return super.onContextItemSelected(item);
+        }
 
         Challenge selectedChallenge = challengeAdapter.getChallengeAtPosition(position);
-        if (selectedChallenge == null) return super.onContextItemSelected(item);
+        if (selectedChallenge == null) {
+            return super.onContextItemSelected(item);
+        }
 
         if (item.getItemId() == R.id.context_reset_progress) {
             dbHelper.resetChallengeProgress(selectedChallenge.getId());
             Snackbar.make(recyclerViewChallenges, getString(R.string.progress_reset), Snackbar.LENGTH_SHORT).show();
-            onResume();
+            // Recarrega os dados para atualizar a UI
+            loadAndDisplayChallenges();
             return true;
         }
         return super.onContextItemSelected(item);

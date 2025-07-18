@@ -18,7 +18,7 @@ import br.edu.ifsuldeminas.mch.codefacil.model.UserProgress;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "codefacil.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 5; // Mantenha ou incremente se fizer alterações
     private Context context;
 
     public static final String TABLE_CHALLENGES = "challenges";
@@ -70,9 +70,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_PROGRESS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHALLENGES);
-        onCreate(db);
+        // Implementação segura para não perder dados do usuário.
+        // Se precisar adicionar uma nova coluna no futuro, faria aqui.
+        // Exemplo:
+        // if (oldVersion < 6) {
+        //     db.execSQL("ALTER TABLE " + TABLE_CHALLENGES + " ADD COLUMN nova_coluna TEXT;");
+        // }
+        // A abordagem de apagar tudo só deve ser usada em desenvolvimento.
+        // Por segurança, vamos comentar a linha destrutiva.
+        // db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_PROGRESS);
+        // db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHALLENGES);
+        // onCreate(db);
     }
 
     public void resetChallengeProgress(long challengeId) {
@@ -150,7 +158,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<Challenge> getAllChallenges() {
         List<Challenge> challenges = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_CHALLENGES, null, null, null, null, null, null);
+        Cursor cursor = db.query(TABLE_CHALLENGES, null, null, null, null, null, COLUMN_CHALLENGE_ID + " ASC");
 
         if (cursor.moveToFirst()) {
             do {
