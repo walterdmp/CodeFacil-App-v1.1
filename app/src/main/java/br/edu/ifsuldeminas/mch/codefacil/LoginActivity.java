@@ -2,6 +2,7 @@ package br.edu.ifsuldeminas.mch.codefacil;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,6 +10,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -65,7 +69,30 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        Toast.makeText(LoginActivity.this, "Falha na autenticação: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        String errorMessage = "Falha na autenticação. Tente novamente mais tarde."; // Mensagem padrão
+                        Exception exception = task.getException();
+                        if (exception instanceof FirebaseAuthException) {
+                            String errorCode = ((FirebaseAuthException) exception).getErrorCode();
+                            switch (errorCode) {
+                                case "ERROR_INVALID_EMAIL":
+                                    errorMessage = "O formato do e-mail é inválido.";
+                                    break;
+                                case "ERROR_USER_NOT_FOUND":
+                                    errorMessage = "Nenhuma conta encontrada com este e-mail.";
+                                    break;
+                                case "ERROR_WRONG_PASSWORD":
+                                    errorMessage = "Palavra-passe incorreta.";
+                                    break;
+                                case "ERROR_USER_DISABLED":
+                                    errorMessage = "Esta conta de utilizador foi desativada.";
+                                    break;
+                                default:
+                                    errorMessage = "Falha na autenticação: " + exception.getLocalizedMessage();
+                                    break;
+                            }
+                        }
+                        Log.e("LoginActivity", "Authentication failed: " + exception.getMessage());
+                        Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                     }
                 });
     }
