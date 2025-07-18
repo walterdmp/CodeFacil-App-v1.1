@@ -2,6 +2,7 @@ package br.edu.ifsuldeminas.mch.codefacil.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 
 /**
  * Classe utilitária para gerenciar as preferências do aplicativo usando SharedPreferences.
@@ -15,8 +16,10 @@ public class AppPreferences {
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+    private Context context; // Contexto para aceder aos recursos do sistema
 
     public AppPreferences(Context context) {
+        this.context = context;
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
     }
@@ -32,9 +35,17 @@ public class AppPreferences {
 
     /**
      * Retorna o estado atual do modo escuro.
-     * @return true se o modo escuro estiver ativado, false caso contrário (padrão é false).
+     * Se o utilizador nunca definiu uma preferência, o tema do sistema é utilizado como padrão.
+     * @return true se o modo escuro estiver ativado, false caso contrário.
      */
     public boolean isDarkModeEnabled() {
+        // Verifica se o utilizador já fez uma escolha de tema.
+        if (!sharedPreferences.contains(KEY_DARK_MODE)) {
+            // Se não houver preferência salva, usa o tema do sistema.
+            int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+        }
+        // Se já houver uma preferência, retorna o valor salvo.
         return sharedPreferences.getBoolean(KEY_DARK_MODE, false);
     }
 

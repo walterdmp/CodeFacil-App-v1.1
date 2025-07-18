@@ -11,8 +11,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+
+import br.edu.ifsuldeminas.mch.codefacil.utils.AppPreferences;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -20,10 +20,20 @@ public class LoginActivity extends AppCompatActivity {
     private Button buttonLogin;
     private TextView textViewRegister;
     private FirebaseAuth mAuth;
+    private AppPreferences appPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Lógica para aplicar o tema correto (claro ou escuro)
+        appPreferences = new AppPreferences(this);
+        if (appPreferences.isDarkModeEnabled()) {
+            setTheme(R.style.Theme_CodeFacil_Dark_NoActionBar);
+        } else {
+            setTheme(R.style.Theme_CodeFacil_NoActionBar);
+        }
+
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
