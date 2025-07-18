@@ -40,4 +40,14 @@
     <string name="stats_wrong">Erros</string>
     <string name="stats_progress_by_level">Progresso por Nível</string>
     <string name="stats_no_challenges">Nenhum desafio neste nível.</string>
+
+    <!-- Textos para Login e Registo -->
+    <string name="login_title">Bem-vindo de volta!</string>
+    <string name="hint_email">E-mail</string>
+    <string name="hint_password">Palavra-passe</string>
+    <string name="button_login">Entrar</string>
+    <string name="prompt_register">Não tem uma conta? Registe-se</string>
+    <string name="register_title">Criar Conta</string>
+    <string name="button_register">Registar</string>
+    <string name="prompt_login">Já tem uma conta? Entre</string>
 </resources>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "100639891264",
+    "project_id": "code-facil-app",
+    "storage_bucket": "code-facil-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100639891264:android:345c9463e427f84e1ba4a5",
+        "android_client_info": {
+          "package_name": "br.edu.ifsuldeminas.mch.codefacil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFYzdSBmMV8beMxV2_H03rvdZVJWZcEFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

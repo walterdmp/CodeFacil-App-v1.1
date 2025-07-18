@@ -7,21 +7,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
+import com.google.firebase.auth.FirebaseAuth;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import br.edu.ifsuldeminas.mch.codefacil.adapter.ChallengeAdapter;
 import br.edu.ifsuldeminas.mch.codefacil.database.DatabaseHelper;
 import br.edu.ifsuldeminas.mch.codefacil.model.Challenge;
@@ -166,8 +163,16 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_settings) {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            return true;
+        } else if (itemId == R.id.action_logout) {
+            FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -190,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
         if (item.getItemId() == R.id.context_reset_progress) {
             dbHelper.resetChallengeProgress(selectedChallenge.getId());
             Snackbar.make(recyclerViewChallenges, getString(R.string.progress_reset), Snackbar.LENGTH_SHORT).show();
-            onResume(); // Recarrega a UI para atualizar o indicador de status
+            onResume();
             return true;
         }
         return super.onContextItemSelected(item);

@@ -6,4 +6,9 @@
         android:title="Configurações"
         android:icon="@drawable/ic_settings"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_logout"
+        android:title="Sair"
+        android:icon="@drawable/ic_logout"
+        app:showAsAction="ifRoom" />
 </menu>

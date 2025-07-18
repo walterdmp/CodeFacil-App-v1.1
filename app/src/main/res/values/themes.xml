@@ -5,17 +5,14 @@
         <item name="colorPrimary">@color/light_primary</item>
         <item name="colorPrimaryDark">@color/light_primary_dark</item>
         <item name="colorOnPrimary">@color/light_text_on_primary</item>
-
         <!-- Cores Secundárias/Destaque -->
         <item name="colorSecondary">@color/light_secondary</item>
         <item name="colorOnSecondary">@color/light_text_on_primary</item>
-
         <!-- Cores de Fundo e Superfície -->
         <item name="android:colorBackground">@color/light_background</item>
         <item name="colorSurface">@color/light_surface</item>
         <item name="colorOnSurface">@color/light_text_primary</item>
         <item name="colorOnSurfaceVariant">@color/light_text_primary</item>
-
         <!-- Cor da Barra de Status -->
         <item name="android:statusBarColor">?attr/colorPrimary</item>
     </style>
@@ -26,19 +23,28 @@
         <item name="colorPrimary">@color/dark_primary</item>
         <item name="colorPrimaryDark">@color/dark_primary_dark</item>
         <item name="colorOnPrimary">@color/dark_text_on_primary</item>
-
         <!-- Cores Secundárias/Destaque -->
         <item name="colorSecondary">@color/dark_secondary</item>
         <item name="colorOnSecondary">@color/dark_text_primary</item>
-
         <!-- Cores de Fundo e Superfície -->
         <item name="android:colorBackground">@color/dark_background</item>
         <item name="colorSurface">@color/dark_surface</item>
         <item name="colorOnSurface">@color/dark_text_primary</item>
         <item name="colorOnSurfaceVariant">@color/dark_text_primary</item>
-
         <!-- Cor da Barra de Status -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
+    </style>
+
+    <!-- TEMA PARA TELAS SEM ACTIONBAR (CLARO) -->
+    <style name="Theme.CodeFacil.NoActionBar" parent="Theme.CodeFacil">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- TEMA PARA TELAS SEM ACTIONBAR (ESCURO) -->
+    <style name="Theme.CodeFacil_Dark.NoActionBar" parent="Theme.CodeFacil_Dark">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
 </resources>
