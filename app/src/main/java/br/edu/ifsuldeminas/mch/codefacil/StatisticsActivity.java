@@ -14,7 +14,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import br.edu.ifsuldeminas.mch.codefacil.database.DatabaseHelper;
+import br.edu.ifsuldeminas.mch.codefacil.database.AppDatabase;
+import br.edu.ifsuldeminas.mch.codefacil.database.dao.ChallengeDao;
+import br.edu.ifsuldeminas.mch.codefacil.database.dao.UserProgressDao;
 import br.edu.ifsuldeminas.mch.codefacil.model.Challenge;
 import br.edu.ifsuldeminas.mch.codefacil.model.UserProgress;
 import br.edu.ifsuldeminas.mch.codefacil.utils.AppPreferences;
@@ -24,7 +26,8 @@ public class StatisticsActivity extends AppCompatActivity {
     private TextView tvTotalSolved, tvTotalCorrect, tvTotalWrong;
     private TextView tvBasicStats, tvIntermediateStats, tvAdvancedStats;
     private ProgressBar progressBasic, progressIntermediate, progressAdvanced;
-    private DatabaseHelper dbHelper;
+    private UserProgressDao userProgressDao; // Alterado de DatabaseHelper
+    private ChallengeDao challengeDao;     // Adicionado para buscar os desafios
     private AppPreferences appPreferences;
 
     @Override
@@ -46,7 +49,12 @@ public class StatisticsActivity extends AppCompatActivity {
         }
 
         initializeViews();
-        dbHelper = new DatabaseHelper(this);
+
+        // Inicializa os DAOs do Room
+        AppDatabase db = AppDatabase.getDatabase(this);
+        userProgressDao = db.userProgressDao();
+        challengeDao = db.challengeDao();
+
         loadStatistics();
     }
 
@@ -54,19 +62,18 @@ public class StatisticsActivity extends AppCompatActivity {
         tvTotalSolved = findViewById(R.id.tvTotalSolved);
         tvTotalCorrect = findViewById(R.id.tvTotalCorrect);
         tvTotalWrong = findViewById(R.id.tvTotalWrong);
-
         tvBasicStats = findViewById(R.id.tvBasicStats);
         tvIntermediateStats = findViewById(R.id.tvIntermediateStats);
         tvAdvancedStats = findViewById(R.id.tvAdvancedStats);
-
         progressBasic = findViewById(R.id.progressBasic);
         progressIntermediate = findViewById(R.id.progressIntermediate);
         progressAdvanced = findViewById(R.id.progressAdvanced);
     }
 
     private void loadStatistics() {
-        List<UserProgress> allProgress = dbHelper.getAllUserProgress();
-        List<Challenge> allChallenges = dbHelper.getAllChallenges();
+        // A lógica agora usa os DAOs do Room para buscar os dados
+        List<UserProgress> allProgress = userProgressDao.getAllProgress();
+        List<Challenge> allChallenges = challengeDao.getAll();
 
         long totalCorrect = allProgress.stream().filter(UserProgress::isCorrect).count();
         long totalCompleted = allProgress.stream().filter(UserProgress::isCompleted).count();

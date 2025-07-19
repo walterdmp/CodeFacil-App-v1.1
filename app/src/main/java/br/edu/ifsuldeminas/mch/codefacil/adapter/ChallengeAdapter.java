@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import br.edu.ifsuldeminas.mch.codefacil.R;
-import br.edu.ifsuldeminas.mch.codefacil.database.DatabaseHelper;
+import br.edu.ifsuldeminas.mch.codefacil.database.dao.UserProgressDao;
 import br.edu.ifsuldeminas.mch.codefacil.model.Challenge;
 import br.edu.ifsuldeminas.mch.codefacil.model.UserProgress;
 
@@ -22,7 +22,7 @@ public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.Chal
 
     private Context context;
     private List<Challenge> challenges;
-    private DatabaseHelper dbHelper;
+    private UserProgressDao userProgressDao; // Alterado de DatabaseHelper para UserProgressDao
     private OnChallengeClickListener listener;
     private int longClickedPosition;
 
@@ -34,10 +34,11 @@ public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.Chal
         this.listener = listener;
     }
 
-    public ChallengeAdapter(Context context, List<Challenge> challenges, DatabaseHelper dbHelper) {
+    // O construtor agora recebe um UserProgressDao
+    public ChallengeAdapter(Context context, List<Challenge> challenges, UserProgressDao userProgressDao) {
         this.context = context;
         this.challenges = challenges;
-        this.dbHelper = dbHelper;
+        this.userProgressDao = userProgressDao;
     }
 
     public int getLongClickedPosition() {
@@ -62,7 +63,8 @@ public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.Chal
         holder.tvChallengeTitle.setText(challenge.getTitle());
         holder.tvChallengeLevel.setText(context.getString(R.string.level_prefix, challenge.getLevel()));
 
-        UserProgress userProgress = dbHelper.getUserProgress(challenge.getId());
+        // A lógica agora usa o userProgressDao para buscar o progresso
+        UserProgress userProgress = userProgressDao.getProgressById(challenge.getId());
 
         if (userProgress != null && userProgress.isCompleted()) {
             if (userProgress.isCorrect()) {

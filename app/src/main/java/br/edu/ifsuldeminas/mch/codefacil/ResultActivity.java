@@ -3,7 +3,6 @@ package br.edu.ifsuldeminas.mch.codefacil;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,14 +12,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
-import br.edu.ifsuldeminas.mch.codefacil.database.DatabaseHelper;
+import br.edu.ifsuldeminas.mch.codefacil.database.AppDatabase;
+import br.edu.ifsuldeminas.mch.codefacil.database.dao.ChallengeDao;
 import br.edu.ifsuldeminas.mch.codefacil.model.Challenge;
 import br.edu.ifsuldeminas.mch.codefacil.utils.AppPreferences;
 
 public class ResultActivity extends AppCompatActivity {
 
     private Challenge challenge;
-    private DatabaseHelper dbHelper;
+    private ChallengeDao challengeDao; // Alterado de DatabaseHelper para ChallengeDao
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +33,9 @@ public class ResultActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_result);
 
-        dbHelper = new DatabaseHelper(this);
+        // Inicializa o DAO do Room
+        challengeDao = AppDatabase.getDatabase(this).challengeDao();
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -74,7 +76,8 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     private void openNextChallenge() {
-        Challenge nextChallenge = dbHelper.getNextChallenge(challenge.getId());
+        // A lógica agora usa o challengeDao para buscar o próximo desafio
+        Challenge nextChallenge = challengeDao.getNextChallenge(challenge.getId());
         if (nextChallenge != null) {
             Intent intent = new Intent(ResultActivity.this, ChallengeActivity.class);
             intent.putExtra("challenge", nextChallenge);

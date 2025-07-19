@@ -7,16 +7,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.material.switchmaterial.SwitchMaterial; // Importe o componente correto
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import br.edu.ifsuldeminas.mch.codefacil.notification.NotificationHelper;
 import br.edu.ifsuldeminas.mch.codefacil.utils.AppPreferences;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    // CORRIGIDO: Altere o tipo de 'Switch' para 'SwitchMaterial'
     private SwitchMaterial switchDarkMode;
     private SwitchMaterial switchNotifications;
     private AppPreferences appPreferences;
@@ -25,6 +25,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         appPreferences = new AppPreferences(this);
+
         if (appPreferences.isDarkModeEnabled()) {
             setTheme(R.style.Theme_CodeFacil_Dark);
         } else {
@@ -45,25 +46,23 @@ public class SettingsActivity extends AppCompatActivity {
         switchDarkMode.setChecked(appPreferences.isDarkModeEnabled());
         switchNotifications.setChecked(appPreferences.areNotificationsEnabled());
 
-        switchDarkMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                appPreferences.setDarkMode(isChecked);
-                recreate();
+        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            appPreferences.setDarkMode(isChecked);
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
         });
 
-        switchNotifications.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                appPreferences.setNotificationsEnabled(isChecked);
-                if (isChecked) {
-                    NotificationHelper.scheduleDailyNotification(SettingsActivity.this);
-                    Toast.makeText(SettingsActivity.this, "Notificações diárias ativadas!", Toast.LENGTH_SHORT).show();
-                } else {
-                    NotificationHelper.cancelDailyNotification(SettingsActivity.this);
-                    Toast.makeText(SettingsActivity.this, "Notificações diárias desativadas!", Toast.LENGTH_SHORT).show();
-                }
+        switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            appPreferences.setNotificationsEnabled(isChecked);
+            if (isChecked) {
+                NotificationHelper.scheduleDailyNotification(SettingsActivity.this);
+                Toast.makeText(SettingsActivity.this, "Notificações diárias ativadas!", Toast.LENGTH_SHORT).show();
+            } else {
+                NotificationHelper.cancelDailyNotification(SettingsActivity.this);
+                Toast.makeText(SettingsActivity.this, "Notificações diárias desativadas!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -71,7 +70,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            // Usa o comportamento padrão de voltar, que irá chamar o onResume da MainActivity
+            super.onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -14,7 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import br.edu.ifsuldeminas.mch.codefacil.database.DatabaseHelper;
+import br.edu.ifsuldeminas.mch.codefacil.database.AppDatabase;
+import br.edu.ifsuldeminas.mch.codefacil.database.dao.UserProgressDao;
 import br.edu.ifsuldeminas.mch.codefacil.model.Challenge;
 import br.edu.ifsuldeminas.mch.codefacil.model.UserProgress;
 import br.edu.ifsuldeminas.mch.codefacil.utils.AppPreferences;
@@ -30,7 +31,7 @@ public class ChallengeActivity extends AppCompatActivity {
     private Button btnSaveAnnotation;
     private View annotationContainer;
 
-    private DatabaseHelper dbHelper;
+    private UserProgressDao userProgressDao;
     private AppPreferences appPreferences;
 
     @Override
@@ -51,7 +52,7 @@ public class ChallengeActivity extends AppCompatActivity {
         }
 
         initializeViews();
-        dbHelper = new DatabaseHelper(this);
+        userProgressDao = AppDatabase.getDatabase(this).userProgressDao();
 
         currentChallenge = (Challenge) getIntent().getSerializableExtra("challenge");
 
@@ -83,7 +84,7 @@ public class ChallengeActivity extends AppCompatActivity {
     }
 
     private void createOptionButtons() {
-        optionsContainer.removeAllViews(); // Limpa opções anteriores
+        optionsContainer.removeAllViews();
         if (currentChallenge.getOptions() == null) return;
 
         for (String option : currentChallenge.getOptions()) {
@@ -93,13 +94,9 @@ public class ChallengeActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            params.setMargins(0, 0, 0, 16); // Adiciona margem inferior
+            params.setMargins(0, 0, 0, 16);
             optionButton.setLayoutParams(params);
-
-            optionButton.setOnClickListener(v -> {
-                checkAnswer(option);
-            });
-
+            optionButton.setOnClickListener(v -> checkAnswer(option));
             optionsContainer.addView(optionButton);
         }
     }
@@ -107,8 +104,7 @@ public class ChallengeActivity extends AppCompatActivity {
     private void checkAnswer(String userAnswer) {
         boolean isCorrect = userAnswer.equalsIgnoreCase(currentChallenge.getCorrectAnswer());
 
-        // Salva o progresso
-        UserProgress userProgress = dbHelper.getUserProgress(currentChallenge.getId());
+        UserProgress userProgress = userProgressDao.getProgressById(currentChallenge.getId());
         if (userProgress == null) {
             userProgress = new UserProgress(currentChallenge.getId(), true, isCorrect, System.currentTimeMillis(), etAnnotation.getText().toString());
         } else {
@@ -116,9 +112,8 @@ public class ChallengeActivity extends AppCompatActivity {
             userProgress.setCorrect(isCorrect);
             userProgress.setLastAccessedTimestamp(System.currentTimeMillis());
         }
-        dbHelper.saveOrUpdateUserProgress(userProgress);
+        userProgressDao.saveOrUpdate(userProgress);
 
-        // Navega para a tela de resultado
         Intent intent = new Intent(ChallengeActivity.this, ResultActivity.class);
         intent.putExtra("challenge", currentChallenge);
         intent.putExtra("isCorrect", isCorrect);
@@ -128,11 +123,10 @@ public class ChallengeActivity extends AppCompatActivity {
     }
 
     private void loadAnnotations() {
-        UserProgress userProgress = dbHelper.getUserProgress(currentChallenge.getId());
+        UserProgress userProgress = userProgressDao.getProgressById(currentChallenge.getId());
         if (userProgress != null && userProgress.getAnnotation() != null) {
             etAnnotation.setText(userProgress.getAnnotation());
         }
-        // Verifica se a intent pediu para mostrar a anotação
         if (getIntent().getBooleanExtra("showAnnotation", false)) {
             annotationContainer.setVisibility(View.VISIBLE);
             btnToggleAnnotation.setText("Esconder Anotação");
@@ -152,13 +146,13 @@ public class ChallengeActivity extends AppCompatActivity {
 
         btnSaveAnnotation.setOnClickListener(v -> {
             String annotation = etAnnotation.getText().toString();
-            UserProgress userProgress = dbHelper.getUserProgress(currentChallenge.getId());
+            UserProgress userProgress = userProgressDao.getProgressById(currentChallenge.getId());
             if (userProgress == null) {
                 userProgress = new UserProgress(currentChallenge.getId(), false, false, System.currentTimeMillis(), annotation);
             } else {
                 userProgress.setAnnotation(annotation);
             }
-            dbHelper.saveOrUpdateUserProgress(userProgress);
+            userProgressDao.saveOrUpdate(userProgress);
             Toast.makeText(this, "Anotação salva!", Toast.LENGTH_SHORT).show();
             annotationContainer.setVisibility(View.GONE);
             btnToggleAnnotation.setText("Anotação Pessoal");
