@@ -20,7 +20,7 @@ import br.edu.ifsuldeminas.mch.codefacil.utils.AppPreferences;
 public class ResultActivity extends AppCompatActivity {
 
     private Challenge challenge;
-    private ChallengeDao challengeDao; // Alterado de DatabaseHelper para ChallengeDao
+    private ChallengeDao challengeDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +33,6 @@ public class ResultActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_result);
 
-        // Inicializa o DAO do Room
         challengeDao = AppDatabase.getDatabase(this).challengeDao();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -76,16 +75,17 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     private void openNextChallenge() {
-        // A lógica agora usa o challengeDao para buscar o próximo desafio
-        Challenge nextChallenge = challengeDao.getNextChallenge(challenge.getId());
-        if (nextChallenge != null) {
-            Intent intent = new Intent(ResultActivity.this, ChallengeActivity.class);
-            intent.putExtra("challenge", nextChallenge);
-            startActivity(intent);
-            finish();
-        } else {
-            Toast.makeText(this, R.string.all_challenges_completed, Toast.LENGTH_SHORT).show();
-        }
+        challengeDao.getNextChallenge(challenge.getId()).observe(this, nextChallenge -> {
+            // O observe só será chamado uma vez para LiveData de consulta única
+            if (nextChallenge != null) {
+                Intent intent = new Intent(ResultActivity.this, ChallengeActivity.class);
+                intent.putExtra("challenge", nextChallenge);
+                startActivity(intent);
+                finish();
+            } else {
+                Toast.makeText(this, R.string.all_challenges_completed, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void shareConquest(boolean isCorrect) {

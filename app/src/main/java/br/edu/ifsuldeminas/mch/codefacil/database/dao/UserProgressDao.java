@@ -1,5 +1,6 @@
 package br.edu.ifsuldeminas.mch.codefacil.database.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -18,20 +19,22 @@ public interface UserProgressDao {
     void update(UserProgress userProgress);
 
     @Query("SELECT * FROM user_progress WHERE challenge_id = :challengeId")
-    UserProgress getProgressById(long challengeId);
+    LiveData<UserProgress> getProgressById(long challengeId);
+
+    @Query("SELECT * FROM user_progress WHERE challenge_id = :challengeId")
+    UserProgress getProgressByIdSync(long challengeId);
 
     @Query("SELECT * FROM user_progress")
-    List<UserProgress> getAllProgress();
+    LiveData<List<UserProgress>> getAllProgress();
 
     @Query("DELETE FROM user_progress WHERE challenge_id = :challengeId")
     void deleteProgressById(long challengeId);
 
     default void saveOrUpdate(UserProgress progress) {
-        UserProgress progressFromDb = getProgressById(progress.getChallengeId());
+        UserProgress progressFromDb = getProgressByIdSync(progress.getChallengeId());
         if (progressFromDb == null) {
             insert(progress);
         } else {
-            // Garante que o ID do desafio não seja sobrescrito se já existir
             progress.setChallengeId(progressFromDb.getChallengeId());
             update(progress);
         }

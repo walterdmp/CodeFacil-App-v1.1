@@ -104,15 +104,17 @@ public class ChallengeActivity extends AppCompatActivity {
     private void checkAnswer(String userAnswer) {
         boolean isCorrect = userAnswer.equalsIgnoreCase(currentChallenge.getCorrectAnswer());
 
-        UserProgress userProgress = userProgressDao.getProgressById(currentChallenge.getId());
-        if (userProgress == null) {
-            userProgress = new UserProgress(currentChallenge.getId(), true, isCorrect, System.currentTimeMillis(), etAnnotation.getText().toString());
-        } else {
-            userProgress.setCompleted(true);
-            userProgress.setCorrect(isCorrect);
-            userProgress.setLastAccessedTimestamp(System.currentTimeMillis());
-        }
-        userProgressDao.saveOrUpdate(userProgress);
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            UserProgress userProgress = userProgressDao.getProgressByIdSync(currentChallenge.getId());
+            if (userProgress == null) {
+                userProgress = new UserProgress(currentChallenge.getId(), true, isCorrect, System.currentTimeMillis(), etAnnotation.getText().toString());
+            } else {
+                userProgress.setCompleted(true);
+                userProgress.setCorrect(isCorrect);
+                userProgress.setLastAccessedTimestamp(System.currentTimeMillis());
+            }
+            userProgressDao.saveOrUpdate(userProgress);
+        });
 
         Intent intent = new Intent(ChallengeActivity.this, ResultActivity.class);
         intent.putExtra("challenge", currentChallenge);
@@ -123,10 +125,11 @@ public class ChallengeActivity extends AppCompatActivity {
     }
 
     private void loadAnnotations() {
-        UserProgress userProgress = userProgressDao.getProgressById(currentChallenge.getId());
-        if (userProgress != null && userProgress.getAnnotation() != null) {
-            etAnnotation.setText(userProgress.getAnnotation());
-        }
+        userProgressDao.getProgressById(currentChallenge.getId()).observe(this, userProgress -> {
+            if (userProgress != null && userProgress.getAnnotation() != null) {
+                etAnnotation.setText(userProgress.getAnnotation());
+            }
+        });
         if (getIntent().getBooleanExtra("showAnnotation", false)) {
             annotationContainer.setVisibility(View.VISIBLE);
             btnToggleAnnotation.setText("Esconder Anotação");
@@ -146,13 +149,15 @@ public class ChallengeActivity extends AppCompatActivity {
 
         btnSaveAnnotation.setOnClickListener(v -> {
             String annotation = etAnnotation.getText().toString();
-            UserProgress userProgress = userProgressDao.getProgressById(currentChallenge.getId());
-            if (userProgress == null) {
-                userProgress = new UserProgress(currentChallenge.getId(), false, false, System.currentTimeMillis(), annotation);
-            } else {
-                userProgress.setAnnotation(annotation);
-            }
-            userProgressDao.saveOrUpdate(userProgress);
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                UserProgress userProgress = userProgressDao.getProgressByIdSync(currentChallenge.getId());
+                if (userProgress == null) {
+                    userProgress = new UserProgress(currentChallenge.getId(), false, false, System.currentTimeMillis(), annotation);
+                } else {
+                    userProgress.setAnnotation(annotation);
+                }
+                userProgressDao.saveOrUpdate(userProgress);
+            });
             Toast.makeText(this, "Anotação salva!", Toast.LENGTH_SHORT).show();
             annotationContainer.setVisibility(View.GONE);
             btnToggleAnnotation.setText("Anotação Pessoal");

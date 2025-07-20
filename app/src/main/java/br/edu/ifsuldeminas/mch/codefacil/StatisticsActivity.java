@@ -26,8 +26,8 @@ public class StatisticsActivity extends AppCompatActivity {
     private TextView tvTotalSolved, tvTotalCorrect, tvTotalWrong;
     private TextView tvBasicStats, tvIntermediateStats, tvAdvancedStats;
     private ProgressBar progressBasic, progressIntermediate, progressAdvanced;
-    private UserProgressDao userProgressDao; // Alterado de DatabaseHelper
-    private ChallengeDao challengeDao;     // Adicionado para buscar os desafios
+    private UserProgressDao userProgressDao;
+    private ChallengeDao challengeDao;
     private AppPreferences appPreferences;
 
     @Override
@@ -50,7 +50,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
         initializeViews();
 
-        // Inicializa os DAOs do Room
         AppDatabase db = AppDatabase.getDatabase(this);
         userProgressDao = db.userProgressDao();
         challengeDao = db.challengeDao();
@@ -71,21 +70,24 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     private void loadStatistics() {
-        // A lógica agora usa os DAOs do Room para buscar os dados
-        List<UserProgress> allProgress = userProgressDao.getAllProgress();
-        List<Challenge> allChallenges = challengeDao.getAll();
+        challengeDao.getAll().observe(this, allChallenges -> {
+            if (allChallenges == null) return;
+            userProgressDao.getAllProgress().observe(this, allProgress -> {
+                if (allProgress == null) return;
 
-        long totalCorrect = allProgress.stream().filter(UserProgress::isCorrect).count();
-        long totalCompleted = allProgress.stream().filter(UserProgress::isCompleted).count();
-        long totalWrong = totalCompleted - totalCorrect;
+                long totalCorrect = allProgress.stream().filter(UserProgress::isCorrect).count();
+                long totalCompleted = allProgress.stream().filter(UserProgress::isCompleted).count();
+                long totalWrong = totalCompleted - totalCorrect;
 
-        tvTotalSolved.setText(String.valueOf(totalCompleted));
-        tvTotalCorrect.setText(String.valueOf(totalCorrect));
-        tvTotalWrong.setText(String.valueOf(totalWrong));
+                tvTotalSolved.setText(String.valueOf(totalCompleted));
+                tvTotalCorrect.setText(String.valueOf(totalCorrect));
+                tvTotalWrong.setText(String.valueOf(totalWrong));
 
-        updateLevelStatistics(allChallenges, allProgress, getString(R.string.level_basic), tvBasicStats, progressBasic);
-        updateLevelStatistics(allChallenges, allProgress, getString(R.string.level_intermediate), tvIntermediateStats, progressIntermediate);
-        updateLevelStatistics(allChallenges, allProgress, getString(R.string.level_advanced), tvAdvancedStats, progressAdvanced);
+                updateLevelStatistics(allChallenges, allProgress, getString(R.string.level_basic), tvBasicStats, progressBasic);
+                updateLevelStatistics(allChallenges, allProgress, getString(R.string.level_intermediate), tvIntermediateStats, progressIntermediate);
+                updateLevelStatistics(allChallenges, allProgress, getString(R.string.level_advanced), tvAdvancedStats, progressAdvanced);
+            });
+        });
     }
 
     private void updateLevelStatistics(List<Challenge> allChallenges, List<UserProgress> allProgress, String level, TextView textView, ProgressBar progressBar) {

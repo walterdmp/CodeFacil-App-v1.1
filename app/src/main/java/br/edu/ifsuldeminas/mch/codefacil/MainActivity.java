@@ -18,6 +18,7 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import br.edu.ifsuldeminas.mch.codefacil.adapter.ChallengeAdapter;
@@ -34,9 +35,9 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
     private RecyclerView recyclerViewChallenges;
     private ChallengeAdapter challengeAdapter;
     private AppPreferences appPreferences;
-    private List<Challenge> allChallenges;
+    private List<Challenge> allChallenges = new ArrayList<>();
     private ChipGroup chipGroupFilter;
-    private boolean isDarkModeActive; // Variável para guardar o estado do tema
+    private boolean isDarkModeActive;
 
     private ChallengeDao challengeDao;
     private UserProgressDao userProgressDao;
@@ -110,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
     }
 
     private void filterChallenges(String level) {
+        if (allChallenges == null || challengeAdapter == null) return;
+
         if (level.equalsIgnoreCase(getString(R.string.filter_all))) {
             challengeAdapter.updateChallenges(allChallenges);
         } else {
@@ -128,6 +131,8 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
             return;
         }
 
+        // A chamada ao loadChallenges aqui garante que a observação seja reativada
+        // se a activity for recriada.
         loadChallenges();
         if (chipGroupFilter.getCheckedChipId() == View.NO_ID) {
             chipGroupFilter.check(R.id.chipAll);
@@ -135,22 +140,38 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
     }
 
     private void loadChallenges() {
-        allChallenges = challengeDao.getAll();
-        for (Challenge challenge : allChallenges) {
-            UserProgress progress = userProgressDao.getProgressById(challenge.getId());
-            challenge.setCompleted(progress != null && progress.isCompleted());
-            challenge.setCorrect(progress != null && progress.isCorrect());
-        }
+        challengeDao.getAll().observe(this, challenges -> {
+            if (challenges == null) return;
 
-        allChallenges.sort((c1, c2) -> Integer.compare(getLevelOrder(c1.getLevel()), getLevelOrder(c2.getLevel())));
+            userProgressDao.getAllProgress().observe(this, progressList -> {
+                if (progressList == null) return;
 
-        if (challengeAdapter == null) {
-            challengeAdapter = new ChallengeAdapter(this, allChallenges, userProgressDao);
-            recyclerViewChallenges.setAdapter(challengeAdapter);
-            challengeAdapter.setOnChallengeClickListener(this);
-        } else {
-            challengeAdapter.updateChallenges(allChallenges);
-        }
+                // Preenche o estado (completed/correct) em cada objeto Challenge
+                for (Challenge challenge : challenges) {
+                    UserProgress progress = progressList.stream()
+                            .filter(p -> p.getChallengeId() == challenge.getId())
+                            .findFirst()
+                            .orElse(null);
+                    challenge.setCompleted(progress != null && progress.isCompleted());
+                    challenge.setCorrect(progress != null && progress.isCorrect());
+                }
+
+                challenges.sort((c1, c2) -> Integer.compare(getLevelOrder(c1.getLevel()), getLevelOrder(c2.getLevel())));
+                allChallenges = new ArrayList<>(challenges);
+
+                if (challengeAdapter == null) {
+                    // O adapter agora só precisa do contexto e da lista de desafios já processada
+                    challengeAdapter = new ChallengeAdapter(this, allChallenges);
+                    recyclerViewChallenges.setAdapter(challengeAdapter);
+                    challengeAdapter.setOnChallengeClickListener(this);
+                } else {
+                    // Atualiza a lista no adapter e aplica o filtro atual
+                    Chip selectedChip = findViewById(chipGroupFilter.getCheckedChipId());
+                    String filter = (selectedChip != null) ? selectedChip.getText().toString() : getString(R.string.filter_all);
+                    filterChallenges(filter);
+                }
+            });
+        });
     }
 
     private int getLevelOrder(String level) {
@@ -207,9 +228,15 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
         if (selectedChallenge == null) return super.onContextItemSelected(item);
 
         if (item.getItemId() == R.id.context_reset_progress) {
-            userProgressDao.deleteProgressById(selectedChallenge.getId());
-            Snackbar.make(recyclerViewChallenges, getString(R.string.progress_reset), Snackbar.LENGTH_SHORT).show();
-            onResume();
+            // Executa a operação de delete em uma thread de background
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                userProgressDao.deleteProgressById(selectedChallenge.getId());
+                // Mostra a notificação na thread da UI
+                runOnUiThread(() -> {
+                    Snackbar.make(recyclerViewChallenges, getString(R.string.progress_reset), Snackbar.LENGTH_SHORT).show();
+                });
+            });
+            // O LiveData atualizará a UI automaticamente, não precisa de onResume()
             return true;
         }
         return super.onContextItemSelected(item);

@@ -14,15 +14,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import br.edu.ifsuldeminas.mch.codefacil.R;
-import br.edu.ifsuldeminas.mch.codefacil.database.dao.UserProgressDao;
+// Removido o import do DAO
 import br.edu.ifsuldeminas.mch.codefacil.model.Challenge;
-import br.edu.ifsuldeminas.mch.codefacil.model.UserProgress;
+// Removido o import do UserProgress
 
 public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.ChallengeViewHolder> {
 
     private Context context;
     private List<Challenge> challenges;
-    private UserProgressDao userProgressDao; // Alterado de DatabaseHelper para UserProgressDao
+    // Removida a dependência do UserProgressDao
     private OnChallengeClickListener listener;
     private int longClickedPosition;
 
@@ -34,11 +34,10 @@ public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.Chal
         this.listener = listener;
     }
 
-    // O construtor agora recebe um UserProgressDao
-    public ChallengeAdapter(Context context, List<Challenge> challenges, UserProgressDao userProgressDao) {
+    // O construtor agora não recebe mais o UserProgressDao
+    public ChallengeAdapter(Context context, List<Challenge> challenges) {
         this.context = context;
         this.challenges = challenges;
-        this.userProgressDao = userProgressDao;
     }
 
     public int getLongClickedPosition() {
@@ -63,11 +62,11 @@ public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.Chal
         holder.tvChallengeTitle.setText(challenge.getTitle());
         holder.tvChallengeLevel.setText(context.getString(R.string.level_prefix, challenge.getLevel()));
 
-        // A lógica agora usa o userProgressDao para buscar o progresso
-        UserProgress userProgress = userProgressDao.getProgressById(challenge.getId());
-
-        if (userProgress != null && userProgress.isCompleted()) {
-            if (userProgress.isCorrect()) {
+        // ERRO CORRIGIDO AQUI:
+        // A lógica agora usa os campos booleanos do próprio objeto Challenge,
+        // que foram preenchidos na MainActivity.
+        if (challenge.isCompleted()) {
+            if (challenge.isCorrect()) {
                 holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(context, R.color.status_correct));
             } else {
                 holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(context, R.color.status_wrong));

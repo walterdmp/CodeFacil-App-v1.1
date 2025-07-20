@@ -24,7 +24,7 @@ import retrofit2.Response;
 
 public class DictionaryActivity extends AppCompatActivity {
 
-    private final String GEMINI_API_KEY = "Chave_API";
+    private final String GEMINI_API_KEY = "CHAVE_API";
 
     private EditText editTextWord;
     private Button btnSearch;
