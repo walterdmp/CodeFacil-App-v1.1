@@ -6,6 +6,8 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -44,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
         super.onCreate(savedInstanceState);
         appPreferences = new AppPreferences(this);
 
-        // Guarda o estado atual do tema
         isDarkModeActive = appPreferences.isDarkModeEnabled();
 
         if (isDarkModeActive) {
@@ -83,6 +84,16 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
         fabStatistics.setOnClickListener(view ->
                 startActivity(new Intent(MainActivity.this, StatisticsActivity.class))
         );
+
+        Button btnOpenGlossary = findViewById(R.id.btnOpenGlossary);
+        btnOpenGlossary.setOnClickListener(view ->
+                startActivity(new Intent(MainActivity.this, GlossaryActivity.class))
+        );
+
+        Button btnOpenDictionary = findViewById(R.id.btnOpenDictionary);
+        btnOpenDictionary.setOnClickListener(view ->
+                startActivity(new Intent(MainActivity.this, DictionaryActivity.class))
+        );
     }
 
     private void setupFilterChips() {
@@ -112,8 +123,6 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
     @Override
     protected void onResume() {
         super.onResume();
-        // CORRIGIDO: Compara o estado atual do tema com o estado guardado.
-        // Se for diferente, recria a Activity para aplicar o novo tema.
         if (isDarkModeActive != appPreferences.isDarkModeEnabled()) {
             recreate();
             return;

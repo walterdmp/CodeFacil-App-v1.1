@@ -16,8 +16,8 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // CORRIGIDO: Garanta a inicialização do Firebase aqui
-        FirebaseApp.initializeApp(this);
+        // A inicialização do Firebase foi removida daqui,
+        // pois já é feita na classe CodeFacilApplication.
 
         setContentView(R.layout.activity_splash);
 

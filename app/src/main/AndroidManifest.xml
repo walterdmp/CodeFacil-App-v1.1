@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
@@ -54,6 +55,21 @@
             android:parentActivityName=".ChallengeActivity" />
         <activity
             android:name=".ChallengeActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".GlossaryActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".GlossaryAddEditActivity"
+            android:exported="false"
+            android:parentActivityName=".GlossaryActivity" />
+
+        <activity
+            android:name=".DictionaryActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 

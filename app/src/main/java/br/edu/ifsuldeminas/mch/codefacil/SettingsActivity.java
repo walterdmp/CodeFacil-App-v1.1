@@ -2,7 +2,6 @@ package br.edu.ifsuldeminas.mch.codefacil;
 
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +16,7 @@ import br.edu.ifsuldeminas.mch.codefacil.utils.AppPreferences;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    // CORREÇÃO: Alterado de 'Switch' para 'SwitchMaterial'
     private SwitchMaterial switchDarkMode;
     private SwitchMaterial switchNotifications;
     private AppPreferences appPreferences;

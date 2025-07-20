@@ -74,6 +74,23 @@
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
+        <Button
+            android:id="@+id/btnOpenGlossary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/glossary" />
+
+        <Button
+            android:id="@+id/btnOpenDictionary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/technical_dictionary" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewChallenges"
             android:layout_width="match_parent"
