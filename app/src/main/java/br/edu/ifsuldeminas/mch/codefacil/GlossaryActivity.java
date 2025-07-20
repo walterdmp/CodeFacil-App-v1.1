@@ -25,7 +25,7 @@ import java.util.List;
 
 import br.edu.ifsuldeminas.mch.codefacil.adapter.GlossaryAdapter;
 import br.edu.ifsuldeminas.mch.codefacil.model.GlossaryTerm;
-import br.edu.ifsuldeminas.mch.codefacil.utils.AppPreferences; // Importar AppPreferences
+import br.edu.ifsuldeminas.mch.codefacil.utils.AppPreferences;
 
 public class GlossaryActivity extends AppCompatActivity {
 
@@ -35,20 +35,18 @@ public class GlossaryActivity extends AppCompatActivity {
     private List<GlossaryTerm> glossaryTermList = new ArrayList<>();
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
-    private AppPreferences appPreferences; // Adicionar AppPreferences
+    private AppPreferences appPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // LÓGICA DO TEMA ADICIONADA AQUI
         appPreferences = new AppPreferences(this);
         if (appPreferences.isDarkModeEnabled()) {
             setTheme(R.style.Theme_CodeFacil_Dark);
         } else {
             setTheme(R.style.Theme_CodeFacil);
         }
-        // FIM DA LÓGICA DO TEMA
 
         setContentView(R.layout.activity_glossary);
 
@@ -70,7 +68,8 @@ public class GlossaryActivity extends AppCompatActivity {
             @Override
             public void onGlossaryTermClick(GlossaryTerm term) {
                 FirebaseUser currentUser = mAuth.getCurrentUser();
-                if (currentUser != null && term.getUserId().equals(currentUser.getUid())) {
+                // CORREÇÃO: Adicionada verificação de nulidade para getUserId()
+                if (currentUser != null && term.getUserId() != null && term.getUserId().equals(currentUser.getUid())) {
                     Intent intent = new Intent(GlossaryActivity.this, GlossaryAddEditActivity.class);
                     intent.putExtra("glossary_term", term);
                     startActivity(intent);
@@ -82,7 +81,8 @@ public class GlossaryActivity extends AppCompatActivity {
             @Override
             public void onGlossaryTermLongClick(GlossaryTerm term) {
                 FirebaseUser currentUser = mAuth.getCurrentUser();
-                if (currentUser != null && term.getUserId().equals(currentUser.getUid())) {
+                // CORREÇÃO: Adicionada verificação de nulidade para getUserId()
+                if (currentUser != null && term.getUserId() != null && term.getUserId().equals(currentUser.getUid())) {
                     new AlertDialog.Builder(GlossaryActivity.this)
                             .setTitle(R.string.delete_term)
                             .setMessage(R.string.delete_term_confirmation)

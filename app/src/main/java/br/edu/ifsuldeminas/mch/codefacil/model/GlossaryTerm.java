@@ -12,13 +12,12 @@ public class GlossaryTerm implements Serializable {
     private String definition;
     private String language;
     private String level;
-    private String userId; // O campo já existia
+    private String userId;
 
     public GlossaryTerm() {
         // Construtor padrão necessário para o Firebase
     }
 
-    // O construtor já estava correto
     public GlossaryTerm(String term, String definition, String language, String level, String userId) {
         this.term = term;
         this.definition = definition;
@@ -39,7 +38,7 @@ public class GlossaryTerm implements Serializable {
     public String getLevel() { return level; }
     public void setLevel(String level) { this.level = level; }
 
-    // **A CORREÇÃO ESTÁ AQUI: ADICIONAR O GETTER PÚBLICO PARA O userId**
+    // **CORREÇÃO: Adicionar o getter público para o userId**
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
 }

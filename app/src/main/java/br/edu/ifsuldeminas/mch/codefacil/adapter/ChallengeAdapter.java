@@ -14,15 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import br.edu.ifsuldeminas.mch.codefacil.R;
-// Removido o import do DAO
 import br.edu.ifsuldeminas.mch.codefacil.model.Challenge;
-// Removido o import do UserProgress
 
 public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.ChallengeViewHolder> {
 
     private Context context;
     private List<Challenge> challenges;
-    // Removida a dependência do UserProgressDao
     private OnChallengeClickListener listener;
     private int longClickedPosition;
 
@@ -34,7 +31,6 @@ public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.Chal
         this.listener = listener;
     }
 
-    // O construtor agora não recebe mais o UserProgressDao
     public ChallengeAdapter(Context context, List<Challenge> challenges) {
         this.context = context;
         this.challenges = challenges;
@@ -62,7 +58,6 @@ public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.Chal
         holder.tvChallengeTitle.setText(challenge.getTitle());
         holder.tvChallengeLevel.setText(context.getString(R.string.level_prefix, challenge.getLevel()));
 
-        // ERRO CORRIGIDO AQUI:
         // A lógica agora usa os campos booleanos do próprio objeto Challenge,
         // que foram preenchidos na MainActivity.
         if (challenge.isCompleted()) {

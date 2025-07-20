@@ -95,12 +95,19 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
         btnOpenDictionary.setOnClickListener(view ->
                 startActivity(new Intent(MainActivity.this, DictionaryActivity.class))
         );
+
+        // CORREÇÃO 1: Inicializar o adapter com uma lista vazia para nunca ser nulo.
+        challengeAdapter = new ChallengeAdapter(this, new ArrayList<>());
+        recyclerViewChallenges.setAdapter(challengeAdapter);
+        challengeAdapter.setOnChallengeClickListener(this);
     }
 
     private void setupFilterChips() {
         chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == View.NO_ID) {
-                challengeAdapter.updateChallenges(allChallenges);
+                if (challengeAdapter != null) { // Verificação de segurança
+                    challengeAdapter.updateChallenges(allChallenges);
+                }
                 return;
             }
             Chip selectedChip = findViewById(checkedId);
@@ -131,8 +138,6 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
             return;
         }
 
-        // A chamada ao loadChallenges aqui garante que a observação seja reativada
-        // se a activity for recriada.
         loadChallenges();
         if (chipGroupFilter.getCheckedChipId() == View.NO_ID) {
             chipGroupFilter.check(R.id.chipAll);
@@ -146,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
             userProgressDao.getAllProgress().observe(this, progressList -> {
                 if (progressList == null) return;
 
-                // Preenche o estado (completed/correct) em cada objeto Challenge
                 for (Challenge challenge : challenges) {
                     UserProgress progress = progressList.stream()
                             .filter(p -> p.getChallengeId() == challenge.getId())
@@ -159,17 +163,11 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
                 challenges.sort((c1, c2) -> Integer.compare(getLevelOrder(c1.getLevel()), getLevelOrder(c2.getLevel())));
                 allChallenges = new ArrayList<>(challenges);
 
-                if (challengeAdapter == null) {
-                    // O adapter agora só precisa do contexto e da lista de desafios já processada
-                    challengeAdapter = new ChallengeAdapter(this, allChallenges);
-                    recyclerViewChallenges.setAdapter(challengeAdapter);
-                    challengeAdapter.setOnChallengeClickListener(this);
-                } else {
-                    // Atualiza a lista no adapter e aplica o filtro atual
-                    Chip selectedChip = findViewById(chipGroupFilter.getCheckedChipId());
-                    String filter = (selectedChip != null) ? selectedChip.getText().toString() : getString(R.string.filter_all);
-                    filterChallenges(filter);
-                }
+                // CORREÇÃO 2: Apenas atualizar a lista de desafios no adapter existente
+                // e aplicar o filtro atual.
+                Chip selectedChip = findViewById(chipGroupFilter.getCheckedChipId());
+                String filter = (selectedChip != null) ? selectedChip.getText().toString() : getString(R.string.filter_all);
+                filterChallenges(filter);
             });
         });
     }
@@ -228,15 +226,12 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
         if (selectedChallenge == null) return super.onContextItemSelected(item);
 
         if (item.getItemId() == R.id.context_reset_progress) {
-            // Executa a operação de delete em uma thread de background
             AppDatabase.databaseWriteExecutor.execute(() -> {
                 userProgressDao.deleteProgressById(selectedChallenge.getId());
-                // Mostra a notificação na thread da UI
                 runOnUiThread(() -> {
                     Snackbar.make(recyclerViewChallenges, getString(R.string.progress_reset), Snackbar.LENGTH_SHORT).show();
                 });
             });
-            // O LiveData atualizará a UI automaticamente, não precisa de onResume()
             return true;
         }
         return super.onContextItemSelected(item);

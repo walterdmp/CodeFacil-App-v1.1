@@ -59,6 +59,6 @@
     <string name="save">Salvar</string>
 
     <string name="technical_dictionary">Dicionário Técnico</string>
-    <string name="enter_a_term">Insira um termo (em inglês)</string>
+    <string name="enter_a_term">Insira um termo</string>
     <string name="search">Pesquisar</string>
 </resources>

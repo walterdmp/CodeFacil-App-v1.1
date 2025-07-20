@@ -24,7 +24,7 @@ import retrofit2.Response;
 
 public class DictionaryActivity extends AppCompatActivity {
 
-    private final String GEMINI_API_KEY = "CHAVE_API";
+    private final String GEMINI_API_KEY = "API_KEY_AQUI"; // Substitua pela sua chave de API do Gemini
 
     private EditText editTextWord;
     private Button btnSearch;
@@ -82,15 +82,14 @@ public class DictionaryActivity extends AppCompatActivity {
 
         // PROMPT ATUALIZADO PARA PEDIR UMA RESPOSTA COMPLETA E BEM FORMATADA
         String prompt = "Aja como um especialista em programação e explique o termo '" + word + "' em português do Brasil. A sua resposta deve ser didática para um iniciante e seguir estritamente esta estrutura:\n\n" +
-                "**Definição:**\n" +
+                "Definição:\n" +
                 "[Explicação clara e concisa do termo.]\n\n" +
-                "**Analogia:**\n" +
+                "Analogia:\n" +
                 "[Uma analogia simples do dia a dia para facilitar o entendimento.]\n\n" +
-                "**Exemplo Prático:**\n" +
+                "Exemplo Prático:\n" +
                 "[Um exemplo curto de código ou de uso prático, se aplicável. Se não, escreva 'Não se aplica.']\n\n" +
                 "Não adicione nenhuma outra formatação como aspas ou blocos de código com ```.";
 
-        // A limitação de tokens foi removida daqui
         GeminiRequest request = new GeminiRequest(prompt);
 
         apiService.getDefinition(GEMINI_API_KEY, request).enqueue(new Callback<GeminiResponse>() {
