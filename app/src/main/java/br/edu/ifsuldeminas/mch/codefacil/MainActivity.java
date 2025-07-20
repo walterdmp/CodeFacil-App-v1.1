@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
                 startActivity(new Intent(MainActivity.this, DictionaryActivity.class))
         );
 
-        // CORREÇÃO 1: Inicializar o adapter com uma lista vazia para nunca ser nulo.
         challengeAdapter = new ChallengeAdapter(this, new ArrayList<>());
         recyclerViewChallenges.setAdapter(challengeAdapter);
         challengeAdapter.setOnChallengeClickListener(this);
@@ -105,9 +104,7 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
     private void setupFilterChips() {
         chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == View.NO_ID) {
-                if (challengeAdapter != null) { // Verificação de segurança
-                    challengeAdapter.updateChallenges(allChallenges);
-                }
+                challengeAdapter.updateChallenges(allChallenges);
                 return;
             }
             Chip selectedChip = findViewById(checkedId);
@@ -146,13 +143,19 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
 
     private void loadChallenges() {
         challengeDao.getAll().observe(this, challenges -> {
-            if (challenges == null) return;
+            // Garante que a lista de desafios não é nula
+            if (challenges == null) {
+                allChallenges = new ArrayList<>();
+            } else {
+                allChallenges = new ArrayList<>(challenges);
+            }
 
             userProgressDao.getAllProgress().observe(this, progressList -> {
-                if (progressList == null) return;
+                // Garante que a lista de progresso não é nula
+                List<UserProgress> nonNullProgressList = (progressList == null) ? new ArrayList<>() : progressList;
 
-                for (Challenge challenge : challenges) {
-                    UserProgress progress = progressList.stream()
+                for (Challenge challenge : allChallenges) {
+                    UserProgress progress = nonNullProgressList.stream()
                             .filter(p -> p.getChallengeId() == challenge.getId())
                             .findFirst()
                             .orElse(null);
@@ -160,11 +163,8 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
                     challenge.setCorrect(progress != null && progress.isCorrect());
                 }
 
-                challenges.sort((c1, c2) -> Integer.compare(getLevelOrder(c1.getLevel()), getLevelOrder(c2.getLevel())));
-                allChallenges = new ArrayList<>(challenges);
+                allChallenges.sort((c1, c2) -> Integer.compare(getLevelOrder(c1.getLevel()), getLevelOrder(c2.getLevel())));
 
-                // CORREÇÃO 2: Apenas atualizar a lista de desafios no adapter existente
-                // e aplicar o filtro atual.
                 Chip selectedChip = findViewById(chipGroupFilter.getCheckedChipId());
                 String filter = (selectedChip != null) ? selectedChip.getText().toString() : getString(R.string.filter_all);
                 filterChallenges(filter);

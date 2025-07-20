@@ -9,6 +9,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+
+// Importar AppPreferences
+import br.edu.ifsuldeminas.mch.codefacil.utils.AppPreferences;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -16,10 +20,21 @@ public class RegisterActivity extends AppCompatActivity {
     private Button buttonRegister;
     private TextView textViewLogin;
     private FirebaseAuth mAuth;
+    // Adicionar AppPreferences
+    private AppPreferences appPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Lógica para aplicar o tema correto (claro ou escuro)
+        appPreferences = new AppPreferences(this);
+        if (appPreferences.isDarkModeEnabled()) {
+            setTheme(R.style.Theme_CodeFacil_Dark_NoActionBar);
+        } else {
+            setTheme(R.style.Theme_CodeFacil_NoActionBar);
+        }
+
         setContentView(R.layout.activity_register);
 
         mAuth = FirebaseAuth.getInstance();
@@ -71,7 +86,26 @@ public class RegisterActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        Toast.makeText(RegisterActivity.this, "Falha no registo: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        String errorMessage = "Falha no registo. Tente novamente mais tarde."; // Mensagem padrão
+                        Exception exception = task.getException();
+                        if (exception instanceof FirebaseAuthException) {
+                            String errorCode = ((FirebaseAuthException) exception).getErrorCode();
+                            switch (errorCode) {
+                                case "ERROR_INVALID_EMAIL":
+                                    errorMessage = "O formato do e-mail é inválido.";
+                                    break;
+                                case "ERROR_EMAIL_ALREADY_IN_USE":
+                                    errorMessage = "Este e-mail já está a ser utilizado por outra conta.";
+                                    break;
+                                case "ERROR_WEAK_PASSWORD":
+                                    errorMessage = "A palavra-passe é demasiado fraca.";
+                                    break;
+                                default:
+                                    errorMessage = "Falha no registo: " + exception.getLocalizedMessage();
+                                    break;
+                            }
+                        }
+                        Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                     }
                 });
     }
