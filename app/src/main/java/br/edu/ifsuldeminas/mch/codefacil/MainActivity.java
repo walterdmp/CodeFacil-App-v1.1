@@ -1,6 +1,8 @@
 package br.edu.ifsuldeminas.mch.codefacil;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -11,6 +13,8 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.Chip;
@@ -42,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
     private ChallengeDao challengeDao;
     private UserProgressDao userProgressDao;
 
+    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 101;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,11 +74,37 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
 
         setupViews();
         setupFilterChips();
+
+        requestNotificationPermission();
+
         loadChallenges();
 
         NotificationHelper.createNotificationChannel(this);
         if (appPreferences.areNotificationsEnabled()) {
             NotificationHelper.scheduleDailyNotification(this);
+        }
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // TIRAMISU é a API 33
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
+                        NOTIFICATION_PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // A permissão foi concedida.
+            } else {
+                // A permissão foi negada.
+            }
         }
     }
 
@@ -143,7 +175,6 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
 
     private void loadChallenges() {
         challengeDao.getAll().observe(this, challenges -> {
-            // Garante que a lista de desafios não é nula
             if (challenges == null) {
                 allChallenges = new ArrayList<>();
             } else {
@@ -151,7 +182,6 @@ public class MainActivity extends AppCompatActivity implements ChallengeAdapter.
             }
 
             userProgressDao.getAllProgress().observe(this, progressList -> {
-                // Garante que a lista de progresso não é nula
                 List<UserProgress> nonNullProgressList = (progressList == null) ? new ArrayList<>() : progressList;
 
                 for (Challenge challenge : allChallenges) {

@@ -46,7 +46,7 @@ public class NotificationHelper {
     }
 
     /**
-     * Agenda uma notificação diária às 18h.
+     * Agenda uma notificação diária às 19:15.
      * @param context O contexto da aplicação.
      */
     public static void scheduleDailyNotification(Context context) {
@@ -54,11 +54,11 @@ public class NotificationHelper {
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        // Define o horário para 18:00 (6 PM)
+        // Define o horário para 19:15
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 18); // 18h
-        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 19); // 19h
+        calendar.set(Calendar.MINUTE, 15);      // 15 minutos
         calendar.set(Calendar.SECOND, 0);
 
         // Se o horário já passou para hoje, agende para amanhã
